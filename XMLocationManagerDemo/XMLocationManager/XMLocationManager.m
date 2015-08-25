@@ -8,7 +8,7 @@
 
 #import "XMLocationManager.h"
 
-@interface XMLocationManager ()<CLLocationManagerDelegate>
+@interface XMLocationManager ()<CLLocationManagerDelegate,UIAlertViewDelegate>
 
 @property (strong, nonatomic) CLLocationManager *locationManager;
 @property (strong, nonatomic) CLGeocoder *geocoder;
@@ -24,6 +24,15 @@
         shareInstance = [[self alloc] init];
     });
     return shareInstance;
+}
+
+#pragma mark - UIAlertViewDelegate
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if (buttonIndex == alertView.cancelButtonIndex) {
+        return;
+    }
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
 #pragma mark - CLLocationManagerDelegate
@@ -74,7 +83,7 @@
                 break;
             case kCLAuthorizationStatusDenied:
             {
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"提示" message:@"请在隐私设置中打开定位开关" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"提示" message:@"请在隐私设置中打开定位开关" delegate:self cancelButtonTitle:@"以后再说" otherButtonTitles:@"前往设置",nil];
                 [alertView show];
             }
                 break;
@@ -89,6 +98,9 @@
     [self.locationManager startUpdatingLocation];
 }
 
+- (void)stopLocation{
+    [self.locationManager stopUpdatingLocation];
+}
 
 
 /**
@@ -98,7 +110,7 @@
  *  @param success       成功block，返回pm
  *  @param failure       失败block
  */
-- (void)geocode:(NSString *)address success:(void(^)(CLPlacemark *pm))success failure:(void(^)())failure{
+- (void)geocode:(NSString *)address success:(void(^)(NSArray *placemarks))success failure:(void(^)())failure{
     [self.geocoder geocodeAddressString:address completionHandler:^(NSArray *placemarks, NSError *error) {
         if (error) {
             if (failure) {
@@ -107,7 +119,7 @@
             return ;
         }
         if (success) {
-            success([placemarks firstObject]);
+            success(placemarks);
         }
     }];
 }

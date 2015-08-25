@@ -5,10 +5,18 @@
 //  Created by shscce on 15/7/31.
 //  Copyright (c) 2015年 xmfraker. All rights reserved.
 //
+//  iOS8+系统 请求授权允许,需要在info.plist添加以下字段
+//  NSLocationAlwaysUseUsageDescription 应用始终允许定位
+//  NSLocationWhenInUseUsageDescription 应用使用时允许定位
+
 
 #import <Foundation/Foundation.h>
 #import <MapKit/MapKit.h>
 
+
+/**
+ *  实现定位功能的manager
+ */
 @interface XMLocationManager : NSObject
 
 
@@ -27,11 +35,16 @@
  *  获取用户授权
  */
 - (void)requestAuthorization;
+
 /**
  *  开始定位
  */
 - (void)startLocation;
 
+/**
+ *  停止定位
+ */
+- (void)stopLocation;
 
 /**
  *  地理编码 （通过地址获取经纬度）
@@ -40,7 +53,7 @@
  *  @param success       成功block，返回pm
  *  @param failure       失败block
  */
-- (void)geocode:(NSString *)address success:(void(^)(CLPlacemark *pm))success failure:(void(^)())failure;
+- (void)geocode:(NSString *)address success:(void(^)(NSArray *placemarks))success failure:(void(^)())failure;
 
 
 /**
